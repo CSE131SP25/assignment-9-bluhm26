@@ -11,9 +11,18 @@ public class Snake {
 	private double deltaY;
 	
 	public Snake() {
-		//FIXME - set up the segments instance variable
+		segments = new LinkedList<>();
 		deltaX = 0;
 		deltaY = 0;
+		
+		double startX = 0.5;
+		double startY = 0.5;
+		
+		for(int i=0; i<3; i++) {
+			double x = startX - i * MOVEMENT_SIZE;
+			double y = startY;
+			segments.add(new BodySegment(x, y, SEGMENT_SIZE));
+		}
 	}
 	
 	public void changeDirection(int direction) {
@@ -37,14 +46,27 @@ public class Snake {
 	 * based on the current direction of travel
 	 */
 	public void move() {
-		//FIXME
+		BodySegment head = segments.getFirst();
+	    double newHeadX = head.getX() + deltaX;
+	    double newHeadY = head.getY() + deltaY;
+
+	    BodySegment newHead = new BodySegment(newHeadX, newHeadY, SEGMENT_SIZE);
+	    segments.addFirst(newHead);
+
+	    if (segments.size() > segments.size() - 1) {
+	    	segments.removeLast();
+	    }
+
 	}
 	
 	/**
 	 * Draws the snake by drawing each segment
 	 */
 	public void draw() {
-		//FIXME
+		for (BodySegment segment : segments) {
+			segment.draw();
+		}
+
 	}
 	
 	/**
@@ -53,7 +75,38 @@ public class Snake {
 	 * @return true if the snake successfully ate the food
 	 */
 	public boolean eatFood(Food f) {
-		//FIXME
+
+		BodySegment head = segments.getFirst(); //growth
+	    double headX = head.getX();
+	    double headY = head.getY();
+	    
+	    double foodX = f.getX(); 
+	    double foodY = f.getY();
+
+	    if (Math.abs(headX - foodX) < Food.FOOD_SIZE && Math.abs(headY - foodY) < Food.FOOD_SIZE) {
+	        
+	        double dx = segments.get(1).getX() - headX;
+	        double dy = segments.get(1).getY() - headY;
+	        BodySegment newSegment = new BodySegment(
+	            segments.getLast().getX() - dx, 
+	            segments.getLast().getY() - dy, 
+	            SEGMENT_SIZE
+	        );
+	        segments.addLast(newSegment);
+	        
+	        java.util.Random random = new java.util.Random();
+	        int red = random.nextInt(256);
+	        int green = random.nextInt(256);
+	        int blue = random.nextInt(256);
+	        java.awt.Color randomColor = new java.awt.Color(red, green, blue);
+
+	        for (BodySegment segment : segments) {
+	            segment.setColor(randomColor);
+	        }
+
+	        return true;
+	    }
+
 		return false;
 	}
 	
@@ -62,7 +115,11 @@ public class Snake {
 	 * @return whether or not the head is in the bounds of the window
 	 */
 	public boolean isInbounds() {
-		//FIXME
-		return true;
+		BodySegment head = segments.getFirst();
+	    double headX = head.getX();
+	    double headY = head.getY();
+
+	    return headX >= 0 && headX <= 1 && headY >= 0 && headY <= 1;
+
 	}
 }
